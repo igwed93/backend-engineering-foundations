@@ -1,9 +1,9 @@
 import asyncio
-from models.user import User
-from exceptions import InvalidUserDataError
+from app.models.user import User
+from app.exceptions import InvalidUserDataError
 
 class UserService:
-    async def create_User(self, username: str, email: str) -> User:
+    async def create_user(self, username: str, email: str) -> User:
         if not username or not email:
             raise InvalidUserDataError("Username and email are required.")
         

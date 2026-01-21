@@ -1,15 +1,19 @@
-import asyncio
-from services.user_service import UserService
-from exceptions import UserServiceError
+from fastapi import FastAPI
+from app.services.user_service import UserService
+from app.exceptions import UserServiceError
 
-async def main():
-    service = UserService()
+app = FastAPI(title="Backend Engineering API")
+
+user_service = UserService()
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
+@app.post("/users")
+async def create_user(name: str, email: str):
     try:
-        user = await service.create_User("", "invalid-email")
-        print(user)
+        user = await user_service.create_user(name, email)
+        return user
     except UserServiceError as exc:
-        print(f"Error occurred: {exc}")
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+        return {"error": str(exc)}
