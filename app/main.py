@@ -1,19 +1,18 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from app.schemas.user import UserCreate, UserResponse
 from app.services.user_service import UserService
-from app.exceptions import UserServiceError
+from app.exceptions import InvalidUserDataError
 
 app = FastAPI(title="Backend Engineering API")
 
 user_service = UserService()
 
-@app.get("/health")
-async def health_check():
-    return {"status": "ok"}
-
-@app.post("/users")
-async def create_user(name: str, email: str):
+@app.post("/users", response_model=UserResponse)
+async def create_user(user: UserCreate):
     try:
-        user = await user_service.create_user(name, email)
-        return user
-    except UserServiceError as exc:
-        return {"error": str(exc)}
+        return await user_service.create_user(
+            username=user.username,
+            email=user.email
+        )
+    except InvalidUserDataError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
