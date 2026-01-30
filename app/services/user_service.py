@@ -1,14 +1,20 @@
-import asyncio
-from app.models.user import User
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.db_models.user import UserDB
 from app.exceptions import InvalidUserDataError
 
 class UserService:
-    async def create_user(self, username: str, email: str) -> User:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+    
+    async def create_user(self, username: str, email: str):
         if not username or not email:
             raise InvalidUserDataError("Username and email are required.")
         
         if "@" not in email:
             raise InvalidUserDataError("Invalid email format.")
         
-        await asyncio.sleep(1)
-        return User(username=username, email=email)
+        user = UserDB(username=username, email=email)
+        self.db.add(user)
+        await self.db.commit()
+        await self.db.refresh(user)
+        return user

@@ -1,7 +1,0 @@
-from dataclasses import dataclass
-
-@dataclass
-class User:
-    username: str
-    email: str
-    is_active: bool = True
